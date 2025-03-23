@@ -1,0 +1,541 @@
+﻿@page
+@model HomNayAnGiApp.Pages.Recipes.DetailsModel
+
+@{
+    ViewData["Title"] = $"Cách làm món {Model.RecipeDTO.RecipeName.ToLower()} ngon";
+}
+
+<style>
+    .fixed-image {
+        width: 200px;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .text-content {
+        color: black;
+    }
+
+    .comment-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .comment-box {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+
+        .comment-box:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .comment-author {
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 1.1em;
+    }
+
+    .comment-date {
+        font-size: 0.85em;
+        color: #95a5a6;
+    }
+
+    .comment-content {
+        color: #34495e;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .comment-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .comment-button {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        color: #3498db;
+    }
+
+        .comment-button:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+
+    .delete-button {
+        color: #e74c3c;
+    }
+
+        .delete-button:hover {
+            color: #c0392b;
+        }
+
+    .reply-container {
+        margin-left: 40px;
+        border-left: 2px solid #e0e0e0;
+        padding-left: 20px;
+    }
+
+    .nested-reply {
+        margin-left: 40px;
+        border-left: 2px solid #e0e0e0;
+        padding-left: 20px;
+    }
+
+    .comment-input-container {
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .comment-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        resize: vertical;
+    }
+
+    .post-button {
+        background-color: #3498db;
+        color: white;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 4px;
+        float: right;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+        .post-button:hover {
+            background-color: #2980b9;
+        }
+
+    .reply-input {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+
+    /* Clear float after post button */
+    .clearfix::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+</style>
+
+<div class="bg-light p-3">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-6">
+                <h1 class="card-title text-uppercase">Món @Model.RecipeDTO.RecipeName.ToLower()</h1>
+                @if (Model.RecipeDTO.CategoryName != null)
+                {
+                    <h6>Thể loại: @Model.RecipeDTO.CategoryName</h6>
+                }
+                @if (Model.RecipeDTO.RecipeMeals != "")
+                {
+                    <h6>Phù hợp với: @Model.RecipeDTO.RecipeMeals</h6>
+                }
+                <h6>Đăng bởi: @Model.RecipeDTO.CreatedByUsername</h6>
+                <h6>Ngày đăng: @Model.RecipeDTO.CreatedAt</h6>
+                <p>@Html.Raw(Model.RecipeDTO.Description)</p>
+            </div>
+            <div class="col-6 d-flex justify-content-end align-items-start">
+                <a asp-page="/UserFavorites/Create" asp-route-recipeId="@Model.RecipeDTO.RecipeId" class="btn btn-primary">Thêm vào yêu thích </a>
+            </div>
+        </div>
+    </div>
+
+
+    @if (Model.RecipeDTO.Image != null)
+    {
+        <img src="@Model.RecipeDTO.Image" class="rounded mx-auto d-block img-fluid" width="100%" alt="..." />
+    }
+    else
+    {
+        <img src="https://res.cloudinary.com/dpnvzshsh/image/upload/v1730822295/HomNayAnGi/b77clhmpa6uheyrdtvfn.jpg" class="img-fluid" alt="..." />
+    }
+
+    <div class="row mt-3">
+        <div class="rounded">
+            <table class="table table-bordered text-center bg-white rounded">
+                <thead>
+                    <tr>
+                        <th class="text-content">Độ Khó</th>
+                        <th class="text-content">Chuẩn Bị</th>
+                        <th class="text-content">Chế Biến</th>
+                        <th class="text-content">Dành Cho</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        @if (Model.RecipeDTO.DifficultyLevel != null)
+                        {
+                            <td class="text-dark">@Model.RecipeDTO.DifficultyLevel</td>
+                        }
+                        else
+                        {
+                            <td class="text-dark">-</td>
+                        }
+
+                        @if (Model.RecipeDTO.PrepTime != null)
+                        {
+                            <td class="text-dark">@Model.RecipeDTO.PrepTime phút</td>
+                        }
+                        else
+                        {
+                            <td class="text-dark">-</td>
+                        }
+
+                        @if (Model.RecipeDTO.CookTime != null)
+                        {
+                            <td class="text-dark">@Model.RecipeDTO.CookTime phút</td>
+                        }
+                        else
+                        {
+                            <td class="text-dark">-</td>
+                        }
+
+                        @if (Model.RecipeDTO.Servings != null)
+                        {
+                            <td class="text-dark">@Model.RecipeDTO.Servings người</td>
+                        }
+                        else
+                        {
+                            <td class="text-dark">-</td>
+                        }
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        @if (Model.RecipeDTO.RecipeIngredients != null && Model.RecipeDTO.RecipeIngredients.Count > 0)
+        {
+            <div class="col-lg-6 col-sm-12 mt-3">
+                <h4>DANH SÁCH NGUYÊN LIỆU</h4>
+                <ol class="list-group list-group-numbered" id="recipe-ingredient-list">
+                    @foreach (var recipeIngredient in Model.RecipeDTO.RecipeIngredients)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">@recipeIngredient.IngredientName</div>
+                                @recipeIngredient.Quantity @recipeIngredient.Unit
+                            </div>
+                        </li>
+                    }
+                </ol>
+            </div>
+        }
+
+        @if (Model.RecipeDTO.NutritionFact != null)
+        {
+            <div class="col-lg-6 col-sm-12 mt-3">
+                <h4>THÔNG TIN DINH DƯỠNG</h4>
+                <ol class="list-group list-group-numbered">
+
+                    @if (@Model.RecipeDTO.NutritionFact.Calories != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Calo</div>
+                                @Model.RecipeDTO.NutritionFact.Calories kcal
+                            </div>
+                        </li>
+                    }
+
+                    @if (@Model.RecipeDTO.NutritionFact.Protein != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Chất đạm</div>
+                                @Model.RecipeDTO.NutritionFact.Protein gam
+                            </div>
+                        </li>
+                    }
+
+                    @if (@Model.RecipeDTO.NutritionFact.Fat != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Chất béo</div>
+                                @Model.RecipeDTO.NutritionFact.Fat miligam
+                            </div>
+                        </li>
+                    }
+
+                    @if (@Model.RecipeDTO.NutritionFact.Carbohydrates != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Chất đường bột</div>
+                                @Model.RecipeDTO.NutritionFact.Carbohydrates gam
+                            </div>
+                        </li>
+                    }
+
+                    @if (@Model.RecipeDTO.NutritionFact.Fiber != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Chất xơ</div>
+                                @Model.RecipeDTO.NutritionFact.Fiber gam
+                            </div>
+                        </li>
+                    }
+
+                    @if (@Model.RecipeDTO.NutritionFact.Sugar != null)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">Đường</div>
+                                @Model.RecipeDTO.NutritionFact.Sugar gam
+                            </div>
+                        </li>
+                    }
+                </ol>
+            </div>
+        }
+    </div>
+
+    @if (Model.RecipeDTO.RecipeSteps != null && Model.RecipeDTO.RecipeSteps.Count() > 0)
+    {
+        <div class="row mt-3">
+            <h4>CÁC BƯỚC THỰC HIỆN</h4>
+            <div class="card mt-2">
+                <div class="card-body">
+                    <div>
+                        @foreach (var recipeStep in Model.RecipeDTO.RecipeSteps)
+                        {
+                            <h6>Bước @recipeStep.StepNumber</h6>
+                            <p class="text-content">@recipeStep.Instruction</p>
+                            @if (recipeStep.StepImages != null && recipeStep.StepImages.Count() > 0)
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var stepImage in recipeStep.StepImages)
+                                    {
+                                        <img src="@stepImage.ImageLink" class="img-thumbnail fixed-image" data-fancybox="@recipeStep.StepNumber" alt="@stepImage.ImageLink">
+                                    }
+                                </div>
+                            }
+                            <hr />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Comments Section -->
+    <div class="comment-section">
+        <h2>Comments</h2>
+        <div class="comment-input-container">
+            <textarea id="newCommentText" class="comment-textarea" placeholder="Add a comment..."></textarea>
+            <div class="clearfix">
+                <button class="post-button" onclick="postMyComment(null)">Post</button>
+            </div>
+        </div>
+        <div id="comment-part"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            //loadRecipeIngredients();
+            loadAllCommentByRecipeId();
+        });
+
+        async function loadRecipeIngredients() {
+            try {
+                const res = await fetch("http://localhost:5000/api/RecipeIngredients/recipe/" + @Model.RecipeDTO.RecipeId);
+                const recipeIngredients = await res.json();
+                const ingredientsList = document.getElementById('recipe-ingredient-list');
+                ingredientsList.innerHTML = '';
+
+                recipeIngredients.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start');
+
+                    const contentDiv = document.createElement('div');
+                    contentDiv.classList.add('ms-2', 'me-auto');
+
+                    const nameDiv = document.createElement('div');
+                    nameDiv.classList.add('fw-bold');
+                    nameDiv.textContent = item.ingredientName;
+
+                    const quantityText = document.createTextNode(`${item.quantity} ${item.unit}`);
+
+                    contentDiv.appendChild(nameDiv);
+                    contentDiv.appendChild(quantityText);
+
+                    listItem.appendChild(contentDiv);
+
+                    ingredientsList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Error fetching recipe ingredients:', error);
+            }
+        }
+
+        // Load comments with nested replies
+        async function loadAllCommentByRecipeId() {
+            try {
+                const res = await fetch("http://localhost:5000/api/RecipeComments/" + @Model.RecipeDTO.RecipeId.ToString());
+                const listComment = await res.json();
+                const commentsContainer = document.getElementById('comment-part');
+                commentsContainer.innerHTML = '';
+
+                listComment.forEach(comment => {
+                    renderComment(comment, commentsContainer);
+                });
+            } catch (error) {
+                console.error('Error fetching recipe comment:', error);
+            }
+        }
+
+        function renderComment(comment, container, level = 0) {
+            const commentWrapper = document.createElement('div');
+            commentWrapper.classList.add('comment-box');
+
+            // Add appropriate nesting class based on level
+            if (level > 0) {
+                const nestedContainer = document.createElement('div');
+                nestedContainer.classList.add(level === 1 ? 'reply-container' : 'nested-reply');
+                container.appendChild(nestedContainer);
+                container = nestedContainer;
+            }
+
+            commentWrapper.innerHTML = `
+                <div class="comment-header">
+                    <span class="comment-author">${comment.username}</span>
+                    <span class="comment-date">${new Date(comment.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div class="comment-content">
+                    <p>${comment.comment}</p>
+                </div>
+                <div class="comment-actions">
+                    <button class="comment-button" onclick="showReplyInput(${comment.commentId})">Reply</button>
+                    ${comment.username === "@Model.UsernameLogin" ? `
+                        <button class="comment-button" onclick="editComment(${comment.commentId})">Edit</button>
+                        <button class="comment-button delete-button" onclick="deleteMyComment(${comment.commentId})">Delete</button>
+                    ` : ''}
+                </div>
+                <div id="reply-input-${comment.commentId}" class="reply-input" style="display:none;">
+                    <textarea id="replyText-${comment.commentId}" class="comment-textarea" placeholder="Reply to this comment..."></textarea>
+                    <div class="clearfix">
+                        <button class="post-button" onclick="postMyComment(${comment.commentId})">Post Reply</button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(commentWrapper);
+
+            // Render nested replies with increased level
+            if (comment.replies && comment.replies.length > 0) {
+                comment.replies.forEach(reply => renderComment(reply, container, level + 1));
+            }
+        }
+
+        // Show input for replying to a comment
+        function showReplyInput(commentId) {
+            const replyInput = document.getElementById(`reply-input-${commentId}`);
+            replyInput.style.display = replyInput.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Post a new comment or reply
+        async function postMyComment(parentCommentId) {
+            const textInputId = parentCommentId ? `replyText-${parentCommentId}` : 'newCommentText';
+            const commentText = document.getElementById(textInputId).value;
+
+            if (!commentText.trim()) return alert("Comment cannot be empty!");
+
+            // Tạo đối tượng commentData mà không có parentCommentId
+            const commentData = {
+                recipeId: "@Model.RecipeDTO.RecipeId",
+                userId: "@Model.UserIdLogin",
+                comment: commentText
+            };
+
+            // Chỉ thêm parentCommentId nếu có giá trị
+            if (parentCommentId != null) {
+                commentData.parentCommentId = parentCommentId.toString();
+            }
+
+            // Kiểm tra dữ liệu JSON sau khi stringify
+            const jsonData = JSON.stringify(commentData);
+            console.log("JSON payload:", jsonData);
+
+            try {
+                await fetch("http://localhost:5000/api/RecipeComments/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: jsonData,
+                });
+                loadAllCommentByRecipeId();
+            } catch (error) {
+                console.error('Error posting comment:', error);
+            }
+        }
+
+        // Edit a comment
+        async function editComment(commentId) {
+            const commentText = prompt("Edit your comment:");
+            if (!commentText) return;
+
+            const commentData = { comment: commentText };
+
+            fetch(`http://localhost:5000/api/RecipeComments/update-comment/${commentId}/${"@Model.UsernameLogin"}/${"@Model.RecipeDTO.RecipeId"}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(commentData),
+            }).then(loadAllCommentByRecipeId)
+                .catch(error => console.error('Error updating comment:', error));
+        }
+
+        // Delete a comment
+        async function deleteMyComment(commentId) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/RecipeComments/delete-comment/${commentId}/${"@Model.UsernameLogin"}/${"@Model.RecipeDTO.RecipeId"}`, {
+                    method: "DELETE",
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error deleting comment: ${response.status} ${response.statusText}`);
+                }
+
+                loadAllCommentByRecipeId();
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+            }
+        }
+    </script>
+}
